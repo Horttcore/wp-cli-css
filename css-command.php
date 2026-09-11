@@ -16,7 +16,15 @@ if (! class_exists('WP_CLI')) {
 
 Bootstrap::registerPromptFallback();
 
-WP_CLI::add_command('css color', Color_Command::class);
-WP_CLI::add_command('css contrast', Contrast_Command::class);
-WP_CLI::add_command('css clamp', Clamp_Command::class);
-WP_CLI::add_command('css mask', Mask_Command::class);
+$registerIfMissing = static function (string $name, string $class): void {
+    if (method_exists('WP_CLI', 'has_command') && WP_CLI::has_command($name)) {
+        return;
+    }
+
+    WP_CLI::add_command($name, $class);
+};
+
+$registerIfMissing('css color', Color_Command::class);
+$registerIfMissing('css contrast', Contrast_Command::class);
+$registerIfMissing('css clamp', Clamp_Command::class);
+$registerIfMissing('css mask', Mask_Command::class);

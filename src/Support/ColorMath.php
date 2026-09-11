@@ -73,20 +73,47 @@ final class ColorMath
         }
 
         if (preg_match('/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+))?\s*\)$/i', $color, $matches)) {
+            $r = (int) $matches[1];
+            $g = (int) $matches[2];
+            $b = (int) $matches[3];
+            $a = isset($matches[4]) ? (float) $matches[4] : 1.0;
+
+            if (! self::isRgbChannel($r) || ! self::isRgbChannel($g) || ! self::isRgbChannel($b) || ! self::isAlpha($a)) {
+                return false;
+            }
+
             return [
-                'r' => (int) $matches[1],
-                'g' => (int) $matches[2],
-                'b' => (int) $matches[3],
-                'a' => isset($matches[4]) ? (float) $matches[4] : 1.0,
+                'r' => $r,
+                'g' => $g,
+                'b' => $b,
+                'a' => $a,
             ];
         }
 
         if (preg_match('/^hsla?\(\s*(\d+)\s*,\s*(\d+)%\s*,\s*(\d+)%\s*(?:,\s*([\d.]+))?\s*\)$/i', $color, $matches)) {
-            return self::hslToRgb((int) $matches[1], (int) $matches[2], (int) $matches[3], isset($matches[4]) ? (float) $matches[4] : 1.0);
+            $h = (int) $matches[1];
+            $s = (int) $matches[2];
+            $l = (int) $matches[3];
+            $a = isset($matches[4]) ? (float) $matches[4] : 1.0;
+
+            if ($s < 0 || $s > 100 || $l < 0 || $l > 100 || ! self::isAlpha($a)) {
+                return false;
+            }
+
+            return self::hslToRgb($h, $s, $l, $a);
         }
 
-        if (preg_match('/^oklch\(\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)(?:\s*\/\s*([\d.]+))?\s*\)$/i', $color, $matches)) {
-            return self::oklchToRgb((float) $matches[1], (float) $matches[2], (float) $matches[3], isset($matches[4]) ? (float) $matches[4] : 1.0);
+        if (preg_match('/^oklch\(\s*([\d.]+%?)\s+([\d.]+)\s+([+-]?[\d.]+)(?:deg)?(?:\s*\/\s*([\d.]+%?))?\s*\)$/i', $color, $matches)) {
+            $l = self::parseOklchLightness($matches[1]);
+            $c = (float) $matches[2];
+            $h = (float) $matches[3];
+            $a = self::parseAlpha($matches[4] ?? null);
+
+            if ($l === null || $c < 0 || $a === null) {
+                return false;
+            }
+
+            return self::oklchToRgb($l, $c, $h, $a);
         }
 
         return false;
@@ -302,5 +329,61 @@ final class ColorMath
             'b' => (int) round($b),
             'a' => $a,
         ];
+    }
+
+    private static function isRgbChannel(int $value): bool
+    {
+        return $value >= 0 && $value <= 255;
+    }
+
+    private static function isAlpha(float $value): bool
+    {
+        return $value >= 0 && $value <= 1;
+    }
+
+    private static function parseAlpha(?string $value): ?float
+    {
+        if ($value === null || $value === '') {
+            return 1.0;
+        }
+
+        $value = trim($value);
+
+        if (str_ends_with($value, '%')) {
+            $percent = (float) rtrim($value, '%');
+
+            if ($percent < 0 || $percent > 100) {
+                return null;
+            }
+
+            return $percent / 100;
+        }
+
+        $alpha = (float) $value;
+
+        return self::isAlpha($alpha) ? $alpha : null;
+    }
+
+    private static function parseOklchLightness(string $value): ?float
+    {
+        $value = trim($value);
+
+        if (str_ends_with($value, '%')) {
+            $percent = (float) rtrim($value, '%');
+
+            if ($percent < 0 || $percent > 100) {
+                return null;
+            }
+
+            return $percent / 100;
+        }
+
+        $number = (float) $value;
+
+        if ($number < 0 || $number > 1) {
+            return null;
+        }
+
+        return $number;
     }
 }

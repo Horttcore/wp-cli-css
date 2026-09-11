@@ -21,6 +21,18 @@ final class Color_Command
      * [--theme=<theme>]
      * : Theme stylesheet slug override.
      *
+     * [--format=<format>]
+     * : Output format.
+     * ---
+     * default: line
+     * options:
+     *   - line
+     *   - json
+     *   - table
+     *   - csv
+     *   - yaml
+     * ---
+     *
      * [--no-interaction]
      * : Disable interactive prompts.
      */
@@ -58,6 +70,23 @@ final class Color_Command
         $hsl = ColorMath::rgbToHsl($rgb['r'], $rgb['g'], $rgb['b']);
         $oklch = ColorMath::rgbToOklch($rgb['r'], $rgb['g'], $rgb['b']);
         $closestNamed = ColorMath::findClosestNamedColor($rgb['r'], $rgb['g'], $rgb['b']);
+        $format = (string) \WP_CLI\Utils\get_flag_value($assoc_args, 'format', 'line');
+
+        $row = [
+            'input' => $colorInput,
+            'resolved' => $resolved,
+            'hex' => $hex,
+            'rgb' => sprintf('rgb(%d, %d, %d)', $rgb['r'], $rgb['g'], $rgb['b']),
+            'hsl' => sprintf('hsl(%d, %d%%, %d%%)', $hsl['h'], $hsl['s'], $hsl['l']),
+            'oklch' => sprintf('oklch(%s %s %s)', $oklch['l'], $oklch['c'], $oklch['h']),
+            'named' => $closestNamed,
+        ];
+
+        if ($format !== 'line') {
+            \WP_CLI\Utils\format_items($format, [$row], array_keys($row));
+
+            return;
+        }
 
         $formats = [
             "HEX: $hex",

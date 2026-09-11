@@ -25,6 +25,18 @@ final class Contrast_Command
      * [--theme=<theme>]
      * : Theme stylesheet slug override.
      *
+     * [--format=<format>]
+     * : Output format.
+     * ---
+     * default: line
+     * options:
+     *   - line
+     *   - json
+     *   - table
+     *   - csv
+     *   - yaml
+     * ---
+     *
      * [--no-interaction]
      * : Disable interactive prompts.
      */
@@ -76,12 +88,29 @@ final class Contrast_Command
 
         $contrastRatio = ContrastMath::calculateContrastRatio($rgb1, $rgb2);
         $status = ContrastMath::getAccessibilityStatus($contrastRatio);
+        $format = (string) \WP_CLI\Utils\get_flag_value($assoc_args, 'format', 'line');
 
         $ratio = number_format($contrastRatio, 2) . ':1';
         $aaNormal = $status['AA_normal'] ? 'pass' : 'fail';
         $aaLarge = $status['AA_large'] ? 'pass' : 'fail';
         $aaaNormal = $status['AAA_normal'] ? 'pass' : 'fail';
         $aaaLarge = $status['AAA_large'] ? 'pass' : 'fail';
+
+        $row = [
+            'foreground' => $foreground,
+            'background' => $background,
+            'ratio' => $ratio,
+            'aa_normal' => $aaNormal,
+            'aa_large' => $aaLarge,
+            'aaa_normal' => $aaaNormal,
+            'aaa_large' => $aaaLarge,
+        ];
+
+        if ($format !== 'line') {
+            \WP_CLI\Utils\format_items($format, [$row], array_keys($row));
+
+            return;
+        }
 
         \WP_CLI::log("$foreground vs $background → Ratio: $ratio | AA: $aaNormal Normal, $aaLarge Large | AAA: $aaaNormal Normal, $aaaLarge Large");
     }

@@ -92,8 +92,12 @@ final class Mask_Command
         $svg = str_replace(["\r", "\n"], '', $svg);
         $svg = trim($svg);
         $svg = str_replace('"', "'", $svg);
+        $svg = preg_replace('/>\s+</', '><', $svg) ?? $svg;
 
-        return 'data:image/svg+xml;utf8,' . $svg;
+        $encoded = rawurlencode($svg);
+        $encoded = str_replace('%2F', '/', $encoded);
+
+        return 'data:image/svg+xml,' . $encoded;
     }
 
     private function generateCssOutput(string $dataUri): string

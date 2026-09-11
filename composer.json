@@ -10,8 +10,8 @@
     },
     "repositories": [
         {
-            "type": "path",
-            "url": "../wp-cli-shared"
+            "type": "vcs",
+            "url": "https://github.com/Horttcore/wp-cli-shared.git"
         }
     ],
     "autoload": {

@@ -1,14 +1,31 @@
 # ralfhortt/wp-cli-css
 
+[![CI](https://github.com/Horttcore/wp-cli-css/actions/workflows/ci.yml/badge.svg)](https://github.com/Horttcore/wp-cli-css/actions/workflows/ci.yml)
+
 WP-CLI CSS utilities with theme.json token autocomplete.
 
 ## Installation
 
+Published package:
+
 ```bash
-wp package install git@github.com:Horttcore/wp-cli-css.git
+wp package install ralfhortt/wp-cli-css
 ```
 
 `ralfhortt/wp-cli-shared` is installed automatically as a Composer dependency.
+
+Local development checkout:
+
+```bash
+wp package install /absolute/path/to/wp-cli-css
+```
+
+Update after local edits:
+
+```bash
+wp package remove ralfhortt/wp-cli-css
+wp package install /absolute/path/to/wp-cli-css
+```
 
 ## Commands
 
@@ -42,3 +59,11 @@ wp css clamp --min=1rem --max=2rem --unit=rem --base-size=16 --format=json --pat
 
 - `--unit=rem|px` controls output min/max units
 - `--base-size=<px>` sets conversion base size for `rem`
+
+## Development
+
+```bash
+composer stan
+composer lint
+composer test
+```

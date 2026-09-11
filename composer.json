@@ -8,12 +8,10 @@
         "wp-cli/wp-cli": "^2.10",
         "ralfhortt/wp-cli-shared": "*"
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/Horttcore/wp-cli-shared.git"
-        }
-    ],
+    "require-dev": {
+        "pestphp/pest": "^2.36",
+        "phpstan/phpstan": "^1.12"
+    },
     "autoload": {
         "psr-4": {
             "RalfHortt\\WpCliCss\\": "src/"
@@ -21,6 +19,38 @@
         "files": [
             "css-command.php"
         ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "RalfHortt\\WpCliCss\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "lint:syntax": [
+            "php -l css-command.php",
+            "php -l src/Commands/Clamp_Command.php",
+            "php -l src/Commands/Color_Command.php",
+            "php -l src/Commands/Contrast_Command.php",
+            "php -l src/Commands/Mask_Command.php",
+            "php -l src/Support/ClampMath.php",
+            "php -l src/Support/ColorMath.php",
+            "php -l src/Support/ContrastMath.php",
+            "php -l src/Support/TokenResolver.php",
+            "php -l tests/Pest.php",
+            "php -l tests/Unit/ClampMathTest.php",
+            "php -l tests/Unit/ColorMathTest.php"
+        ],
+        "stan": "phpstan analyse --memory-limit=1G",
+        "lint": [
+            "@lint:syntax",
+            "@stan"
+        ],
+        "test": "pest --colors=always"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
     },
     "minimum-stability": "dev",
     "prefer-stable": true

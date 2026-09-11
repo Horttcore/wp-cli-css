@@ -1,0 +1,27 @@
+{
+    "name": "ralfhortt/wp-cli-css",
+    "description": "WP-CLI CSS utility commands with theme.json token support",
+    "type": "wp-cli-package",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "php": ">=8.2",
+        "wp-cli/wp-cli": "^2.10",
+        "ralfhortt/wp-cli-shared": "*"
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../wp-cli-shared"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "RalfHortt\\WpCliCss\\": "src/"
+        },
+        "files": [
+            "css-command.php"
+        ]
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
